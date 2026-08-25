@@ -1,0 +1,19 @@
+# Java build output
+target/
+*.class
+
+# IDE metadata
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+
+# Operating-system files
+.DS_Store
+
+# Local configuration and secrets
+.env
+.env.*
+!/.env.example
+application-local.properties
