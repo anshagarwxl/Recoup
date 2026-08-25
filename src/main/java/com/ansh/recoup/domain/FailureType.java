@@ -1,0 +1,12 @@
+package com.ansh.recoup.domain;
+
+public enum FailureType {
+    INSUFFICIENT_FUNDS,
+    UPI_MANDATE_INACTIVE,
+    UPI_COLLECT_EXPIRED,
+    BANK_TECHNICAL_ERROR,
+    CARD_DECLINED,
+    AUTHENTICATION_FAILED,
+    PAYMENT_TIMEOUT,
+    UNKNOWN
+}

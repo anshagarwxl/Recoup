@@ -22,7 +22,7 @@ Built for the Razorpay AI Buildathon — Track 03: AI Revenue Recovery.
 
 ## Status
 
-Project bootstrap complete. The next milestone is defining the domain model and producing a reproducible synthetic dataset.
+Project bootstrap and recovery-data schema complete. The next milestone is producing a reproducible synthetic dataset and wiring the diagnosis engine.
 
 ## Local development
 
@@ -42,5 +42,5 @@ Run tests with:
 - [Architecture](docs/ARCHITECTURE.md)
 - [Engineering decisions](docs/DECISIONS.md)
 - [Data methodology](docs/DATA.md)
+- [Recovery data schema](docs/RECOVERY-DATA-SCHEMA.md)
 - [Failures and fixes](docs/FAILURES.md)
-
