@@ -114,11 +114,12 @@ Every diagnosis and message generated must record and display its origin:
 
 ## 6. The Road Ahead & Next Steps
 
-1. **Step 1: Synthetic Data Layer (Data Generator)**
-   * Code a seeded generator (`com.ansh.recoup.data.SyntheticDataGenerator`) to produce a reproducible batch of 100–150 failed payments across various methods (UPI-majority, Cards, Netbanking) and contexts.
-2. **Step 2: Diagnosis Engine**
-   * Code the gateway mapping lookup table.
-   * Write the plain `HttpClient`-based `GeminiClient` with JSON parsing and complete try-catch error/fallback handling.
+1. **[COMPLETED] Step 1: Synthetic Data Layer (Data Generator)**
+   * Seeded generator (`com.ansh.recoup.generator.SyntheticDataGenerator`) produces a reproducible batch of 100–150 failed payments across UPI, Cards, and Netbanking.
+2. **[COMPLETED] Step 2: Diagnosis Engine**
+   * Deterministic lookup table maps clean codes.
+   * `GeminiClient` connects via plain `HttpClient` with 5s timeout and structured JSON generation configs.
+   * Graceful fallback triggers on timeout, HTTP 429, missing key, or parse exceptions (resolves to UNKNOWN and MOCK_FALLBACK without guessing).
 3. **Step 3: Policy Engine**
    * Program rules for mapping failure classifications to recovery schedules and stopping conditions.
 4. **Step 4: Mock Recovery Executor**
@@ -130,15 +131,19 @@ Every diagnosis and message generated must record and display its origin:
 
 ## 7. Chronological Handover & Session Log
 
-### Session 1 (2026-08-25) — Bootstrapping & Foundation Alignment
+### Session 1 (2026-08-25) — Bootstrapping & Phase 1 Core Backend
 * **Actions Taken**:
-  * Rewrote `docs/Context.md` to cleanly capture the product details, system boundaries, fallback specifications, and the phased roadmap.
-  * Created `AGENTS.md` to define agent constraints (Karpathy guidelines, ECC file-size rules, deterministic policies, and continuous context updates).
-  * Created `.env.example` as a template for secret configuration.
-  * Laid out `data/` and `scripts/` root folders.
-  * Committed the first domain-schema implementation and documentation checkpoint to git.
+  * Rewrote `docs/Context.md` and created `AGENTS.md` to define guidelines (Karpathy rules, ECC file bounds, deterministic policies, context log requirements).
+  * Implemented and validated the core schema domain records under `com.ansh.recoup.domain`.
+  * **[Phase 1 Implementation]**:
+    * Created `SyntheticDataGenerator.java` mapping 15 realistic failure profiles (UPI-majority context weights) using a seeded `Random` generator.
+    * Created `GeminiClient.java` using plain Java `HttpClient` to call Gemini Flash (configured with a 5-second timeout, `responseMimeType: "application/json"`, and complete try-catch degradation logic).
+    * Created `DiagnosisEngine.java` to perform deterministic mappings for known code lookups, falling back to `GeminiClient` for free-text, and resolving to `MOCK_FALLBACK` on failures.
+    * Created `SecretValidator.java` as a non-blocking startup check for environment variables.
+    * Wrote unit tests in `SyntheticDataGeneratorTest.java` and `DiagnosisEngineTest.java` verifying reproducibility, target counts, and error-fallback cases.
+  * Committed all code changes locally (commits `0857767` and `641e072`). Remote push was paused as requested.
 * **Status of Codebase**:
-  * Clean, runnable, and building (all tests pass).
-  * Domain records and validation rules are fully in place.
+  * Clean working tree.
+  * All 9 tests compile and pass successfully (`./mvnw test`).
 * **Next Task**:
-  * Proceed to Phase 1 Execution: Implement the seeded `SyntheticDataGenerator` under `com.ansh.recoup.generator` and write its validation tests.
+  * Proceed to Phase 2: Create the deterministic **Policy Engine** (Step 3) to map diagnosed failure types to scheduled action plans.
