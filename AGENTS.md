@@ -43,3 +43,12 @@ This document is loaded by AI coding assistants to align behavior, ensure code q
   2. Generating the wording for recovery messages (nudge copy).
 - **Graceful Fallback**: If Gemini encounters an issue (missing API key, rate limit, timeout, malformed payload), the system must degrade gracefully. The failure must be categorized as `UNKNOWN` (Needs Manual Review) and tagged as `MOCK_FALLBACK`.
 - **Audit Trails**: Every transaction’s entire path (original failure -> diagnosis -> policy plan -> action execution -> outcome) must be logged in a structured audit trail, with the source of the diagnosis (`GATEWAY_CODE`, `LLM_GEMINI`, or `MOCK_FALLBACK`) clearly stored and visible in reports.
+
+---
+
+## 5. Documentation Handover & Context Discipline
+
+- **Living Context File (`docs/Context.md`)**: The file `docs/Context.md` is our primary mechanism for cross-session and cross-agent handover.
+- **Continuous Updates**: After completing any minor or major milestone, or when significant ideation changes occur, the active agent must completely rewrite or update `docs/Context.md` to reflect the exact current development stage, status of all files, and decisions.
+- **Running Log**: Maintain a running chronological history log in `docs/Context.md` summarizing what has been done, so that if a token limit requires switching agents, the next agent can immediately resume work without context loss.
+
