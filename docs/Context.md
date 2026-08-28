@@ -115,15 +115,15 @@ Every diagnosis and message generated must record and display its origin:
 ## 6. The Road Ahead & Next Steps
 
 1. **[COMPLETED] Step 1: Synthetic Data Layer (Data Generator)**
-   * Seeded generator (`com.ansh.recoup.generator.SyntheticDataGenerator`) produces a reproducible batch of 100–150 failed payments across UPI, Cards, and Netbanking.
+   * Seeded generator (`com.recoup.generator.SyntheticDataGenerator`) produces a reproducible batch of 100–150 failed payments across UPI, Cards, and Netbanking.
 2. **[COMPLETED] Step 2: Diagnosis Engine**
    * Deterministic lookup table maps clean codes.
    * `GeminiClient` connects via plain `HttpClient` with 5s timeout and structured JSON generation configs.
    * Graceful fallback triggers on timeout, HTTP 429, missing key, or parse exceptions (resolves to UNKNOWN and MOCK_FALLBACK without guessing).
-3. **Step 3: Policy Engine**
-   * Program rules for mapping failure classifications to recovery schedules and stopping conditions.
-4. **Step 4: Mock Recovery Executor**
-   * Simulate payment retries and communication actions, applying cost rates.
+3. **[COMPLETED] Step 3: Policy Engine**
+   * Program rules for mapping failure classifications to recovery schedules, estimated costs, and stopping conditions, including a high-value manual escalation overlay (> ₹10,000).
+4. **[COMPLETED] Step 4: Mock Recovery Executor**
+   * Simulates payment retries and communication actions, applying step success rates and cost accounting rules (actual cost charged on attempts, zero cost when skipped).
 5. **Step 5: HTML Dashboard & Audit Trail UI**
    * Set up Thymeleaf controllers and templates to display the batch summary (Gross vs. Net recovered revenue) and timelines.
 
@@ -134,27 +134,28 @@ Every diagnosis and message generated must record and display its origin:
 ### Session 1 (2026-08-25) — Bootstrapping & Phase 1 Core Backend
 * **Actions Taken**:
   * Rewrote `docs/Context.md` and created `AGENTS.md` to define guidelines (Karpathy rules, ECC file bounds, deterministic policies, context log requirements).
-  * Implemented and validated the core schema domain records under `com.ansh.recoup.domain`.
+  * Implemented and validated the core schema domain records under `com.recoup.domain` (originally `com.ansh.recoup.domain`).
   * **[Phase 1 Implementation]**:
     * Created `SyntheticDataGenerator.java` mapping 15 realistic failure profiles (UPI-majority context weights) using a seeded `Random` generator.
     * Created `GeminiClient.java` using plain Java `HttpClient` to call Gemini Flash (configured with a 5-second timeout, `responseMimeType: "application/json"`, and complete try-catch degradation logic).
     * Created `DiagnosisEngine.java` to perform deterministic mappings for known code lookups, falling back to `GeminiClient` for free-text, and resolving to `MOCK_FALLBACK` on failures.
     * Created `SecretValidator.java` as a non-blocking startup check for environment variables.
     * Wrote unit tests in `SyntheticDataGeneratorTest.java` and `DiagnosisEngineTest.java` verifying reproducibility, target counts, and error-fallback cases.
-  * Committed all code changes locally (commits `0857767` and `641e072`). Remote push was paused as requested.
-* **Status of Codebase**:
-  * Clean working tree.
-  * All 9 tests compile and pass successfully (`./mvnw test`).
+  * Committed all code changes and pushed them to GitHub.
 
-### Session 2 (2026-08-28) — Refactoring & Domain Updates
+### Session 2 (2026-08-28) — Refactoring & Phase 2 Core Backend
 * **Actions Taken**:
   * Renamed project packages globally from `com.ansh.recoup` to `com.recoup` and updated the `pom.xml` group ID coordinate.
-  * Created `docs/EXPLANATIONS.md` containing detailed walkthroughs of Phase 1 files, and added it to `.gitignore`.
+  * Created `docs/EXPLANATIONS.md` containing detailed walkthroughs of Phase 1 and 2 files, and added it to `.gitignore`.
   * Added the Pair-Programming & Walkthrough Discipline rule to `AGENTS.md`.
   * Modified domain schema models:
     * Added `HARD_DECLINE` to `FailureType`.
     * Added `long costPaise` to `PlannedAction` to support cost tracking of scheduled interventions.
-  * Verified build compiles and all 9 tests pass with `./mvnw clean test`.
+    * Added `UNRESOLVED` to `RecoveryStatus` to distinguish tried-and-failed cases from compliance halts.
+  * Implemented `PolicyEngine.java` to schedule recovery paths, estimated costs, and manual escalation overlays.
+  * Implemented `RecoveryExecutor.java` to simulate execution outcomes using a configurable seeded `Random` and apply actual cost charging rules.
+  * Documented outcome probabilities and assumptions in `docs/DATA.md`.
+  * Verified build compiles and all 20 tests pass with `./mvnw test`.
   * Committed refactoring and Policy Engine changes locally (commits `715929b`, `0fb6668` and `dbad53d`) and pushed them to GitHub.
 * **Next Task**:
-  * Proceed to Phase 2 Execution: Implement the Mock Recovery Executor (Step 4) to evaluate planned actions sequentially and track actual execution costs.
+  * Proceed to Phase 3: Create the Case Manager and Pipeline orchestrator to execute the batch end-to-end, evaluating actions and tracking states sequentially, producing audit trails.
