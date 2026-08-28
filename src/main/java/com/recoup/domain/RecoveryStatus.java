@@ -4,5 +4,6 @@ public enum RecoveryStatus {
     PLANNED,
     IN_PROGRESS,
     RECOVERED,
+    UNRESOLVED,
     STOPPED
 }
