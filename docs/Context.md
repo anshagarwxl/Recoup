@@ -145,5 +145,16 @@ Every diagnosis and message generated must record and display its origin:
 * **Status of Codebase**:
   * Clean working tree.
   * All 9 tests compile and pass successfully (`./mvnw test`).
+
+### Session 2 (2026-08-28) — Refactoring & Domain Updates
+* **Actions Taken**:
+  * Renamed project packages globally from `com.ansh.recoup` to `com.recoup` and updated the `pom.xml` group ID coordinate.
+  * Created `docs/EXPLANATIONS.md` containing detailed walkthroughs of Phase 1 files, and added it to `.gitignore`.
+  * Added the Pair-Programming & Walkthrough Discipline rule to `AGENTS.md`.
+  * Modified domain schema models:
+    * Added `HARD_DECLINE` to `FailureType`.
+    * Added `long costPaise` to `PlannedAction` to support cost tracking of scheduled interventions.
+  * Verified build compiles and all 9 tests pass with `./mvnw clean test`.
+  * Committed refactoring changes locally (commit `715929b`).
 * **Next Task**:
-  * Proceed to Phase 2: Create the deterministic **Policy Engine** (Step 3) to map diagnosed failure types to scheduled action plans.
+  * Confirm the Policy Engine business rules table and proceed to implement `PolicyEngine.java`.
