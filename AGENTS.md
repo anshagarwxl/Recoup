@@ -11,6 +11,7 @@ This document is loaded by AI coding assistants to align behavior, ensure code q
 - **Surgical Changes**: Modify only what is strictly necessary. Avoid "drive-by" refactorings of unrelated code that is not broken.
 - **Goal-Driven Loops**: Define clear, verifiable success criteria (like unit tests or CLI execution) and verify correctness before completing the task.
 - **Honesty**: Avoid overconfident code, silently assumed behavior, or unverified claims. If something is uncertain, ask the user or write a test to confirm.
+- **Pair-Programming & Walkthrough Discipline**: The agent must explain the design, trade-offs, why, and how in detail step-by-step to the user *before* executing code changes, and wait for confirmation. It must ensure the user has complete understanding of every file built.
 
 ---
 

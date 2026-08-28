@@ -17,3 +17,6 @@ target/
 .env.*
 !/.env.example
 application-local.properties
+
+# Personal walkthroughs and explanations
+docs/EXPLANATIONS.md
