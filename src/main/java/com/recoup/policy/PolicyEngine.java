@@ -85,10 +85,11 @@ public class PolicyEngine {
                 break;
 
             case UPI_MANDATE_INACTIVE:
+            case UPI_COLLECT_EXPIRED:
                 plannedActions.add(new PlannedAction(
                         RecoveryActionType.SEND_PAYMENT_LINK,
                         failure.failedAt().plusSeconds(3600), // +1 hour
-                        "Mandate inactive; send link to establish new mandate or pay invoice",
+                        "UPI mandate inactive or collect expired; send link to retry or re-authorize",
                         200L // ₹2
                 ));
                 stoppingRationale = "Stop after link nudge.";

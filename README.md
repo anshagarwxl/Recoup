@@ -22,7 +22,7 @@ Built for the Razorpay AI Buildathon — Track 03: AI Revenue Recovery.
 
 ## Status
 
-Project bootstrap and recovery-data schema complete. The next milestone is producing a reproducible synthetic dataset and wiring the diagnosis engine.
+Synthetic data generation, diagnosis engine, deterministic policy engine, and simulated recovery executor are complete with 20 passing unit tests. The next milestone is the batch orchestration pipeline and Thymeleaf dashboard.
 
 ## Local development
 

@@ -21,7 +21,7 @@ PaymentFailure (the input event)
 | `PaymentFailure` | Original failed payment, never mutated by recovery logic. | payment ID, merchant reference, context, amount in paise, payment method, failure time, gateway code and reason |
 | `FailureDiagnosis` | Normalized interpretation of the failure. | failure type, confidence, evidence, diagnosis source |
 | `RecoveryPlan` | Deterministic policy output for one failure. | planned actions, recovery status, stopping rationale |
-| `PlannedAction` | An action the policy allows at a precise time. | action type, scheduled time, rationale |
+| `PlannedAction` | An action the policy allows at a precise time. | action type, scheduled time, rationale, cost in paise |
 | `ActionExecution` | Result and cost of an attempted action. | planned action, result, executed time, cost in paise, outcome note |
 | `AuditEvent` | An append-only explanation suitable for the UI. | timestamp, event type, message |
 

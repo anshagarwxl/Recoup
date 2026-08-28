@@ -27,7 +27,9 @@ public class SyntheticDataGenerator {
             new FailureTemplate(PaymentContext.ONE_TIME_CHECKOUT, 20_000, 1_000_000, "AUTHENTICATION_FAILED", "3DS verification failed or timed out"),
             new FailureTemplate(PaymentContext.ONE_TIME_CHECKOUT, 50_000, 2_000_000, "CARD_DECLINED", "Card declined by issuing bank"),
             new FailureTemplate(PaymentContext.ONE_TIME_CHECKOUT, 200_000, 5_000_000, null, "declined due to suspected risk profile"),
-            new FailureTemplate(PaymentContext.SUBSCRIPTION_RENEWAL, 49_900, 299_900, null, "network failure while contacting visa directory server")
+            new FailureTemplate(PaymentContext.SUBSCRIPTION_RENEWAL, 49_900, 299_900, null, "network failure while contacting visa directory server"),
+            new FailureTemplate(PaymentContext.ONE_TIME_CHECKOUT, 10_000, 500_000, "FRAUD_FLAGGED", "Transaction flagged by fraud detection system"),
+            new FailureTemplate(PaymentContext.ONE_TIME_CHECKOUT, 5_000, 200_000, "STOLEN_CARD", "Card reported lost or stolen by cardholder")
     );
 
     private static final List<FailureTemplate> NETBANKING_TEMPLATES = List.of(

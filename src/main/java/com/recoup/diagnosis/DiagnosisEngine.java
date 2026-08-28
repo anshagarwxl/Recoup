@@ -42,6 +42,11 @@ public class DiagnosisEngine {
 
         // Payment timeouts
         LOOKUP_TABLE.put("PAYMENT_TIMEOUT", FailureType.PAYMENT_TIMEOUT);
+
+        // Hard decline / fraud flags (compliance terminal — zero recovery permitted)
+        LOOKUP_TABLE.put("FRAUD_FLAGGED", FailureType.HARD_DECLINE);
+        LOOKUP_TABLE.put("STOLEN_CARD", FailureType.HARD_DECLINE);
+        LOOKUP_TABLE.put("DO_NOT_HONOR", FailureType.HARD_DECLINE);
     }
 
     private final GeminiClient geminiClient;
