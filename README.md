@@ -36,7 +36,7 @@
 
 **Recoup** is an auditable recovery orchestration system for batches of failed or at-risk payments, built for the **Razorpay AI Buildathon — Track 03: AI Revenue Recovery**. It diagnoses payment failures, applies deterministic and compliant recovery policies, simulates bounded recovery actions, and reports net recovered revenue with a transaction-level audit trail.
 
-## 🚀 Quick Start
+## Quick Start
 
 Get the application running locally in three steps:
 
@@ -53,13 +53,13 @@ export GEMINI_API_KEY="your_api_key_here"
 ```
 Then open [http://localhost:8080](http://localhost:8080) to view the dashboard.
 
-## 🎥 Demo Video
+## Demo Video
 
 > **[Insert Link to ~5-minute Demo Video Here]**
 
 *(Note: Watch the video to see the live Gemini Flash AI classification and the dynamic timeline drawer in action).*
 
-## 🧠 Architecture & Data Flow
+## Architecture & Data Flow
 
 Recoup strictly isolates business logic from LLM generation to guarantee financial compliance.
 
@@ -70,7 +70,7 @@ Recoup strictly isolates business logic from LLM generation to guarantee financi
 3. **Policy Engine (Zero LLM):** Fully deterministic. It applies compliance rules (e.g., hard halts on fraud) and escalating cost policies (e.g., triggering account manager review for failures > ₹10,000) using strict Java rules.
 4. **Execution & Auditing:** The Orchestrator logs every decision, simulated cost, and final state to a transparent audit trail, viewable in the Thymeleaf web dashboard.
 
-## ✨ Key Features
+## Key Features
 
 - **UPI-Aware by Design:** Payment failure handling reflects Indian payment realities rather than treating every failure as a generic card decline.
 - **Deterministic for Financials:** Policies, stopping rules, costs, and escalations are explicit, testable Java code. AI is strictly prohibited from making financial decisions.
@@ -78,7 +78,7 @@ Recoup strictly isolates business logic from LLM generation to guarantee financi
 - **Honest Recovery Metrics:** Reports *net* revenue recovered after subtracting retry, messaging, and operational escalation costs.
 - **Offline-Safe Dashboard:** The dashboard features Chart.js data visualizations with local fallbacks, tactile button physics, and native `@media print` CSS for exporting clean PDF snapshots.
 
-## 📚 Documentation
+## Documentation
 
 - [Problem framing](docs/PROBLEM.md)
 - [Architecture](docs/ARCHITECTURE.md)
@@ -87,7 +87,7 @@ Recoup strictly isolates business logic from LLM generation to guarantee financi
 - [Recovery data schema](docs/RECOVERY-DATA-SCHEMA.md)
 - [Failures and fixes](docs/FAILURES.md)
 
-## 🛠️ Local Development
+## Local Development
 
 Run the web server:
 ```bash
