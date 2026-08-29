@@ -8,6 +8,8 @@
 
 Built for the **Razorpay AI Buildathon — Track 03: AI Revenue Recovery**.
 
+**🚀 Quick Start:** ` ./mvnw spring-boot:run ` then open [http://localhost:8080](http://localhost:8080)
+
 ---
 
 ## 🎥 Demo Video

@@ -162,7 +162,7 @@ Every diagnosis and message generated must record and display its origin:
 * **Actions Taken**:
   * Implemented `RecoveryOrchestrator.java` to coordinate the full end-to-end recovery lifecycle (diagnosis -> policy -> execution with early-stopping and audit trail construction).
   * Implemented `RecoveryMetrics.java` to aggregate financial KPIs (Gross revenue, actual intervention costs, Net yield).
-  * Implemented `TimelineFormatter.java` for simulated relative offset formatting.
+  * Implemented `TimelineFormatter.java` for simulated relative offset formatting in the backend audit logs.
   * Implemented `DashboardController.java` to serve the web dashboard and REST case inspection API.
   * Built `dashboard.html` with modern dark-mode fintech aesthetics, metric cards, status filters, search, and slide-over audit trail drawers.
   * Created `RecoveryOrchestratorTest.java` and `DashboardControllerTest.java` bringing the test suite to 25 passing automated tests.
@@ -170,3 +170,14 @@ Every diagnosis and message generated must record and display its origin:
   * Verified build compiles and all 25 tests pass (`./mvnw clean test`).
 * **Next Task**:
   * Run application locally (`./mvnw spring-boot:run`) and verify web dashboard functionality.
+
+### Session 4 (2026-08-29) — Final Polish, Thread-Safety & Export Artifacts
+* **Actions Taken**:
+  * Replaced vanilla text with interactive **Chart.js** visualizations (Status distribution, Diagnosis Source, and Failure Type breakdown). Bundled Chart.js locally for offline-safe demos.
+  * Enhanced `dashboard.html` with a scrollable 125-row table (with sticky headers), native `@media print` CSS for exporting clean PDF snapshots, a new SVG Refresh arrow logo, and JavaScript-based relative timestamps for the UI timeline drawer.
+  * Refactored `DashboardController.java` to be entirely stateless using an immutable `DashboardState` record per request, eliminating multithreading risks during concurrent batch refreshes.
+  * Componentized `SyntheticDataGenerator.java` via Spring `@Component`.
+  * Extracted audit string formatting into `AuditTrailBuilder.java` to simplify `RecoveryOrchestrator.java`.
+  * Verified all 25 tests still pass cleanly.
+* **Next Task**:
+  * User to configure `GEMINI_API_KEY` and record the final demonstration video.

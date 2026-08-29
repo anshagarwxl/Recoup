@@ -40,6 +40,12 @@ public record RecoveryMetrics(
         return String.format("%.1f%%", recoveryRatePercent);
     }
 
+    public String formattedRevenueRecoveryRate() {
+        if (totalFailedAmountPaise == 0) return "0.0%";
+        double rate = (grossRecoveredPaise * 100.0) / totalFailedAmountPaise;
+        return String.format("%.1f%%", rate);
+    }
+
     private static String formatRupees(long paise) {
         double rupees = paise / 100.0;
         return String.format("₹%,.2f", rupees);
