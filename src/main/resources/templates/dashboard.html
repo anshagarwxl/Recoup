@@ -68,8 +68,8 @@
         }
 
         .brand-logo {
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            color: white;
+            background: #ffffff;
+            color: #0b0f19;
             font-weight: 700;
             font-size: 20px;
             width: 44px;
@@ -78,7 +78,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 20px var(--accent-blue-glow);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
         }
 
         .brand-text h1 {
@@ -134,12 +134,23 @@
             font-size: 13px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
         .btn-primary:hover {
             background: #2563eb;
-            box-shadow: 0 0 12px var(--accent-blue-glow);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px var(--accent-blue-glow);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        .search-input:focus, .batch-form input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px var(--accent-blue-glow);
         }
 
         /* Metric Cards Grid */

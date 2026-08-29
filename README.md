@@ -1,57 +1,84 @@
-# Recoup 💰
+<h1 align="center">
+  <br>
+  <a href="http://localhost:8080"><svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></a>
+  <br>
+  Recoup
+  <br>
+</h1>
 
-![Java 17](https://img.shields.io/badge/Java-17-orange.svg)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.8-brightgreen.svg)
-![Razorpay Buildathon](https://img.shields.io/badge/Razorpay-Track_03-blue.svg)
+<h4 align="center">Auditable payment recovery orchestration & dunning intelligence.</h4>
 
-**Recoup** is an auditable recovery orchestration system for batches of failed or at-risk payments. It diagnoses payment failures, applies deterministic and compliant recovery policies, simulates bounded recovery actions, and reports net recovered revenue with a transaction-level audit trail.
+<p align="center">
+  <a href="https://github.com/anshagarwxl/Recoup/actions/workflows/build.yml">
+    <img src="https://github.com/anshagarwxl/Recoup/actions/workflows/build.yml/badge.svg" alt="Build Status">
+  </a>
+  <a href="https://img.shields.io/badge/Java-21-orange.svg">
+    <img src="https://img.shields.io/badge/Java-21-orange.svg" alt="Java 21">
+  </a>
+  <a href="https://img.shields.io/badge/Spring%20Boot-3.3.8-brightgreen.svg">
+    <img src="https://img.shields.io/badge/Spring%20Boot-3.3.8-brightgreen.svg" alt="Spring Boot">
+  </a>
+  <a href="https://img.shields.io/badge/Razorpay-Track_03-blue.svg">
+    <img src="https://img.shields.io/badge/Razorpay-Track_03-blue.svg" alt="Razorpay Buildathon">
+  </a>
+</p>
 
-Built for the **Razorpay AI Buildathon — Track 03: AI Revenue Recovery**.
-
-**🚀 Quick Start:** ` ./mvnw spring-boot:run ` then open [http://localhost:8080](http://localhost:8080)
+<p align="center">
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-architecture--data-flow">Architecture</a> •
+  <a href="#-key-features">Key Features</a> •
+  <a href="#-demo-video">Demo Video</a>
+</p>
 
 ---
+
+![Dashboard Preview](docs/assets/dashboard.png) 
+
+**Recoup** is an auditable recovery orchestration system for batches of failed or at-risk payments, built for the **Razorpay AI Buildathon — Track 03: AI Revenue Recovery**. It diagnoses payment failures, applies deterministic and compliant recovery policies, simulates bounded recovery actions, and reports net recovered revenue with a transaction-level audit trail.
+
+## 🚀 Quick Start
+
+Get the application running locally in three steps:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/anshagarwxl/Recoup.git
+cd Recoup
+
+# 2. Set your Gemini API Key (Required for AI classification)
+export GEMINI_API_KEY="your_api_key_here"
+
+# 3. Run the Spring Boot application
+./mvnw spring-boot:run
+```
+Then open [http://localhost:8080](http://localhost:8080) to view the dashboard.
 
 ## 🎥 Demo Video
 
 > **[Insert Link to ~5-minute Demo Video Here]**
+
 *(Note: Watch the video to see the live Gemini Flash AI classification and the dynamic timeline drawer in action).*
 
----
+## 🧠 Architecture & Data Flow
 
-## Product principles
+Recoup strictly isolates business logic from LLM generation to guarantee financial compliance.
 
-- **UPI-aware by design:** payment failure handling reflects Indian payment realities rather than treating every failure as a card decline.
-- **Deterministic where money is involved:** policies, stopping rules, costs, and escalations are explicit, testable code.
-- **AI only where it adds judgment:** ambiguous text classification and template-bound message drafting.
-- **Honest recovery metrics:** report revenue recovered after retry, messaging, and inference costs.
-- **Auditable decisions:** every diagnosis, decision, action, and outcome has a human-readable explanation.
+1. **Synthetic Generation:** A deterministic engine seeds a reproducible batch of 125 failed payments (UPI, Card, Netbanking) representing real-world Indian fintech failures.
+2. **Diagnosis (`GATEWAY_CODE` vs `LLM_GEMINI`):** 
+   - **Deterministic:** Gateway error codes (e.g., `INSUFFICIENT_FUNDS`, `FRAUD_FLAGGED`) are mapped deterministically to failure types.
+   - **Gemini Flash (LLM):** Ambiguous, free-text gateway reason strings are sent to Gemini for intelligent classification. If Gemini is unavailable, it safely defaults to `UNKNOWN` (`MOCK_FALLBACK`).
+3. **Policy Engine (Zero LLM):** Fully deterministic. It applies compliance rules (e.g., hard halts on fraud) and escalating cost policies (e.g., triggering account manager review for failures > ₹10,000) using strict Java rules.
+4. **Execution & Auditing:** The Orchestrator logs every decision, simulated cost, and final state to a transparent audit trail, viewable in the Thymeleaf web dashboard.
 
-## Technology
+## ✨ Key Features
 
-- Java 17
-- Spring Boot
-- Thymeleaf local web UI
-- JUnit 5
-- Gemini Flash REST integration (active; gracefully optional at runtime)
+- **UPI-Aware by Design:** Payment failure handling reflects Indian payment realities rather than treating every failure as a generic card decline.
+- **Deterministic for Financials:** Policies, stopping rules, costs, and escalations are explicit, testable Java code. AI is strictly prohibited from making financial decisions.
+- **Auditable Decisions:** Every diagnosis, decision, action, and outcome provides a human-readable explanation in the dashboard timeline.
+- **Honest Recovery Metrics:** Reports *net* revenue recovered after subtracting retry, messaging, and operational escalation costs.
+- **Offline-Safe Dashboard:** The dashboard features Chart.js data visualizations with local fallbacks, tactile button physics, and native `@media print` CSS for exporting clean PDF snapshots.
 
-## Status
-
-All milestones are complete: Seeded synthetic data generator, diagnosis engine (gateway code lookups + Gemini Flash REST client), deterministic policy engine (compliance halts & high-value escalation overlay), simulated recovery executor, and interactive Thymeleaf web dashboard with real-time filters and transaction audit trail drawers. Complete test suite with 25 passing unit and MVC tests.
-
-## Local development
-
-```bash
-./mvnw spring-boot:run
-```
-
-Run tests with:
-
-```bash
-./mvnw test
-```
-
-## Documentation
+## 📚 Documentation
 
 - [Problem framing](docs/PROBLEM.md)
 - [Architecture](docs/ARCHITECTURE.md)
@@ -59,3 +86,15 @@ Run tests with:
 - [Data methodology](docs/DATA.md)
 - [Recovery data schema](docs/RECOVERY-DATA-SCHEMA.md)
 - [Failures and fixes](docs/FAILURES.md)
+
+## 🛠️ Local Development
+
+Run the web server:
+```bash
+./mvnw spring-boot:run
+```
+
+Run the test suite (25 automated tests):
+```bash
+./mvnw clean test
+```
