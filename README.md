@@ -22,7 +22,7 @@ Built for the Razorpay AI Buildathon — Track 03: AI Revenue Recovery.
 
 ## Status
 
-Synthetic data generation, diagnosis engine, deterministic policy engine, and simulated recovery executor are complete with 20 passing unit tests. The next milestone is the batch orchestration pipeline and Thymeleaf dashboard.
+All milestones are complete: Seeded synthetic data generator, diagnosis engine (gateway code lookups + Gemini Flash REST client), deterministic policy engine (compliance halts & high-value escalation overlay), simulated recovery executor, and interactive Thymeleaf web dashboard with real-time filters and transaction audit trail drawers. Complete test suite with 25 passing unit and MVC tests.
 
 ## Local development
 
