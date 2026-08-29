@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recoup — Auditable Payment Recovery Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-primary: #0b0f19;
@@ -327,7 +329,8 @@
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 14px;
-            overflow: hidden;
+            overflow-y: auto;
+            max-height: 500px;
         }
 
         table {
@@ -346,6 +349,9 @@
             text-transform: uppercase;
             font-size: 11px;
             letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         td {
@@ -570,6 +576,18 @@
         </div>
     </section>
 
+    <!-- Charts Section -->
+    <section class="charts-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px;">
+        <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px;">
+            <h3 style="font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 16px;">Recovery Status Distribution</h3>
+            <div style="height: 220px; position: relative;"><canvas id="statusChart"></canvas></div>
+        </div>
+        <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px;">
+            <h3 style="font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 16px;">Failure Type Breakdown</h3>
+            <div style="height: 220px; position: relative;"><canvas id="failureTypeChart"></canvas></div>
+        </div>
+    </section>
+
     <!-- Secondary Breakdown Bar -->
     <div class="breakdown-section">
         <div class="breakdown-group">
@@ -696,6 +714,20 @@
             document.getElementById('drawerPaymentId').innerText = 'Audit Trail: ' + c.paymentFailure.paymentId;
             document.getElementById('drawerSubtitle').innerText = c.paymentFailure.paymentMethod + ' • ' + (c.paymentFailure.amountPaise / 100).toFixed(2) + ' INR • ' + c.plan.status;
 
+            function formatRelativeTime(baseStr, currentStr) {
+                const base = new Date(baseStr).getTime();
+                const current = new Date(currentStr).getTime();
+                const diffMs = current - base;
+                if (diffMs < 1000) return "Immediate";
+                
+                const diffMins = Math.floor(diffMs / 60000);
+                if (diffMins < 60) return "+ " + diffMins + " mins";
+                const diffHours = Math.floor(diffMins / 60);
+                if (diffHours < 24) return "+ " + diffHours + " hrs";
+                const diffDays = Math.floor(diffHours / 24);
+                return "+ " + diffDays + " days";
+            }
+
             let html = '<div class="timeline">';
             c.auditTrail.forEach(event => {
                 let markerClass = '';
@@ -704,12 +736,14 @@
                 else if (event.message.includes('FAILED')) markerClass = 'failed';
                 else if (event.message.includes('SUCCEEDED')) markerClass = 'success';
 
+                const timeOffset = formatRelativeTime(c.paymentFailure.failedAt, event.occurredAt);
+
                 html += `
                     <div class="timeline-node">
                         <div class="timeline-marker ${markerClass}"></div>
                         <div class="timeline-header">
                             <span class="timeline-event-name">${event.type}</span>
-                            <span class="timeline-time">${event.occurredAt}</span>
+                            <span class="timeline-time">${timeOffset}</span>
                         </div>
                         <div class="timeline-body">${event.message}</div>
                     </div>
@@ -726,6 +760,68 @@
             document.getElementById('drawerBackdrop').style.display = 'none';
             document.getElementById('drawerPanel').classList.remove('open');
         }
+
+        // Initialize Charts
+        function initCharts() {
+            let recovered = 0, unresolved = 0, stopped = 0;
+            const failureTypes = {};
+            
+            allCasesData.forEach(c => {
+                const status = c.plan.status;
+                if (status === 'RECOVERED') recovered++;
+                else if (status === 'UNRESOLVED') unresolved++;
+                else if (status === 'STOPPED') stopped++;
+                
+                const type = c.diagnosis.failureType;
+                failureTypes[type] = (failureTypes[type] || 0) + 1;
+            });
+            
+            // Status Donut
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Recovered', 'Unresolved', 'Stopped'],
+                    datasets: [{
+                        data: [recovered, unresolved, stopped],
+                        backgroundColor: ['#10b981', '#ef4444', '#6b7280'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { color: '#9ca3af', font: { family: 'Inter' } } } },
+                    cutout: '70%'
+                }
+            });
+            
+            // Failure Types Bar
+            const typeCtx = document.getElementById('failureTypeChart').getContext('2d');
+            const sortedTypes = Object.entries(failureTypes).sort((a, b) => b[1] - a[1]);
+            new Chart(typeCtx, {
+                type: 'bar',
+                data: {
+                    labels: sortedTypes.map(t => t[0]),
+                    datasets: [{
+                        label: 'Cases',
+                        data: sortedTypes.map(t => t[1]),
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#374151' }, ticks: { color: '#9ca3af', stepSize: 10, font: { family: 'Inter' } } },
+                        x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 9, family: 'Inter' } } }
+                    }
+                }
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', initCharts);
         /*]]>*/
     </script>
 </body>

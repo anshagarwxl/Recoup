@@ -5,7 +5,6 @@ import com.recoup.domain.RecoveryCase;
 import com.recoup.generator.SyntheticDataGenerator;
 import com.recoup.orchestrator.RecoveryMetrics;
 import com.recoup.orchestrator.RecoveryOrchestrator;
-import com.recoup.util.TimelineFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,24 +20,22 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class DashboardController {
 
     private final RecoveryOrchestrator orchestrator;
-    private final SyntheticDataGenerator generator = new SyntheticDataGenerator();
+    private final SyntheticDataGenerator generator;
 
-    private List<RecoveryCase> activeCases;
-    private RecoveryMetrics activeMetrics;
-    private long currentSeed = 42L;
-    private int currentSize = 125;
+    private record DashboardState(long seed, int size, List<RecoveryCase> cases, RecoveryMetrics metrics) {}
+    private volatile DashboardState state;
 
-    public DashboardController(RecoveryOrchestrator orchestrator) {
+    public DashboardController(RecoveryOrchestrator orchestrator, SyntheticDataGenerator generator) {
         this.orchestrator = Objects.requireNonNull(orchestrator, "orchestrator must not be null");
-        refreshBatch(currentSize, currentSeed);
+        this.generator = Objects.requireNonNull(generator, "generator must not be null");
+        refreshBatch(125, 42L);
     }
 
-    private synchronized void refreshBatch(int size, long seed) {
-        this.currentSize = size;
-        this.currentSeed = seed;
+    private void refreshBatch(int size, long seed) {
         List<PaymentFailure> failures = generator.generateBatch(size, seed);
-        this.activeCases = orchestrator.processBatch(failures);
-        this.activeMetrics = orchestrator.calculateMetrics(activeCases);
+        List<RecoveryCase> activeCases = orchestrator.processBatch(failures);
+        RecoveryMetrics activeMetrics = orchestrator.calculateMetrics(activeCases);
+        this.state = new DashboardState(seed, size, activeCases, activeMetrics);
     }
 
     @GetMapping({"/", "/dashboard"})
@@ -47,23 +44,25 @@ public class DashboardController {
             @RequestParam(name = "size", required = false) Integer size,
             Model model) {
 
+        DashboardState currentState = this.state;
         if (seed != null || size != null) {
-            long targetSeed = seed != null ? seed : currentSeed;
-            int targetSize = size != null ? size : currentSize;
+            long targetSeed = seed != null ? seed : currentState.seed();
+            int targetSize = size != null ? size : currentState.size();
             refreshBatch(targetSize, targetSeed);
+            currentState = this.state;
         }
 
-        model.addAttribute("metrics", activeMetrics);
-        model.addAttribute("cases", activeCases);
-        model.addAttribute("currentSeed", currentSeed);
-        model.addAttribute("currentSize", currentSize);
+        model.addAttribute("metrics", currentState.metrics());
+        model.addAttribute("cases", currentState.cases());
+        model.addAttribute("currentSeed", currentState.seed());
+        model.addAttribute("currentSize", currentState.size());
         return "dashboard";
     }
 
     @GetMapping("/api/case/{paymentId}")
     @ResponseBody
     public Optional<RecoveryCase> getCaseDetails(@PathVariable String paymentId) {
-        return activeCases.stream()
+        return state.cases().stream()
                 .filter(c -> c.paymentFailure().paymentId().equalsIgnoreCase(paymentId))
                 .findFirst();
     }

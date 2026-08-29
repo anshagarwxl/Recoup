@@ -1,8 +1,21 @@
-# Recoup
+# Recoup 💰
+
+![Java 17](https://img.shields.io/badge/Java-17-orange.svg)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.8-brightgreen.svg)
+![Razorpay Buildathon](https://img.shields.io/badge/Razorpay-Track_03-blue.svg)
 
 **Recoup** is an auditable recovery orchestration system for batches of failed or at-risk payments. It diagnoses payment failures, applies deterministic and compliant recovery policies, simulates bounded recovery actions, and reports net recovered revenue with a transaction-level audit trail.
 
-Built for the Razorpay AI Buildathon — Track 03: AI Revenue Recovery.
+Built for the **Razorpay AI Buildathon — Track 03: AI Revenue Recovery**.
+
+---
+
+## 🎥 Demo Video
+
+> **[Insert Link to ~5-minute Demo Video Here]**
+*(Note: Watch the video to see the live Gemini Flash AI classification and the dynamic timeline drawer in action).*
+
+---
 
 ## Product principles
 
@@ -18,7 +31,7 @@ Built for the Razorpay AI Buildathon — Track 03: AI Revenue Recovery.
 - Spring Boot
 - Thymeleaf local web UI
 - JUnit 5
-- Gemini Flash REST integration (planned; optional at runtime)
+- Gemini Flash REST integration (active; gracefully optional at runtime)
 
 ## Status
 

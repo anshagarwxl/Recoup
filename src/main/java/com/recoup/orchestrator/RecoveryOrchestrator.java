@@ -67,37 +67,15 @@ public class RecoveryOrchestrator {
         List<AuditEvent> auditTrail = new ArrayList<>();
 
         // 1. Log failure ingestion
-        auditTrail.add(new AuditEvent(
-                failure.failedAt(),
-                AuditEventType.FAILURE_RECORDED,
-                String.format("Payment failure imported [%s]: %s via %s (Context: %s)",
-                        failure.paymentId(),
-                        TimelineFormatter.formatRupees(failure.amountPaise()),
-                        failure.paymentMethod(),
-                        failure.context())
-        ));
+        auditTrail.add(AuditTrailBuilder.buildFailureRecordedEvent(failure));
 
         // 2. Perform diagnosis
         FailureDiagnosis diagnosis = diagnosisEngine.diagnose(failure);
-        auditTrail.add(new AuditEvent(
-                failure.failedAt(),
-                AuditEventType.DIAGNOSED,
-                String.format("Diagnosed as %s (Source: %s, Confidence: %s) — Evidence: %s",
-                        diagnosis.failureType(),
-                        diagnosis.source(),
-                        diagnosis.confidence(),
-                        diagnosis.evidence())
-        ));
+        auditTrail.add(AuditTrailBuilder.buildDiagnosedEvent(failure, diagnosis));
 
         // 3. Create deterministic recovery plan
         RecoveryPlan initialPlan = policyEngine.createPlan(failure, diagnosis);
-        auditTrail.add(new AuditEvent(
-                failure.failedAt(),
-                AuditEventType.PLAN_CREATED,
-                String.format("Recovery plan created with %d scheduled action(s). Rule: %s",
-                        initialPlan.plannedActions().size(),
-                        initialPlan.stoppingRationale())
-        ));
+        auditTrail.add(AuditTrailBuilder.buildPlanCreatedEvent(failure, initialPlan));
 
         List<ActionExecution> executions = new ArrayList<>();
         boolean paymentRecovered = false;
@@ -108,19 +86,11 @@ public class RecoveryOrchestrator {
             for (PlannedAction action : initialPlan.plannedActions()) {
                 ActionExecution exec = recoveryExecutor.execute(action, diagnosis.failureType(), false);
                 executions.add(exec);
-                auditTrail.add(new AuditEvent(
-                        exec.executedAt(),
-                        AuditEventType.ACTION_EXECUTED,
-                        String.format("%s: %s (Cost: %s)",
-                                action.actionType(),
-                                exec.outcomeNote(),
-                                TimelineFormatter.formatRupees(exec.costPaise()))
-                ));
+                auditTrail.add(AuditTrailBuilder.buildTerminalActionExecutedEvent(exec));
             }
             finalStatus = RecoveryStatus.STOPPED;
-            auditTrail.add(new AuditEvent(
+            auditTrail.add(AuditTrailBuilder.buildRecoveryStoppedEvent(
                     failure.failedAt(),
-                    AuditEventType.RECOVERY_STOPPED,
                     "Automated recovery halted by policy stopping rule."
             ));
         } else {
@@ -132,41 +102,12 @@ public class RecoveryOrchestrator {
 
                 if (exec.result() == ActionResult.SUCCEEDED) {
                     paymentRecovered = true;
-                    auditTrail.add(new AuditEvent(
-                            exec.executedAt(),
-                            AuditEventType.ACTION_EXECUTED,
-                            String.format("%s [%s] SUCCEEDED (Cost: %s) — %s",
-                                    action.actionType(),
-                                    TimelineFormatter.formatDayOffset(failure.failedAt(), exec.executedAt()),
-                                    TimelineFormatter.formatRupees(exec.costPaise()),
-                                    exec.outcomeNote())
-                    ));
-                    auditTrail.add(new AuditEvent(
-                            exec.executedAt(),
-                            AuditEventType.PAYMENT_RECOVERED,
-                            String.format("Payment successfully recovered (%s). Pending scheduled follow-ups cancelled.",
-                                    TimelineFormatter.formatRupees(failure.amountPaise()))
-                    ));
+                    auditTrail.add(AuditTrailBuilder.buildActionExecutedEvent(failure, exec));
+                    auditTrail.add(AuditTrailBuilder.buildPaymentRecoveredEvent(failure, exec));
                 } else if (exec.result() == ActionResult.FAILED) {
-                    auditTrail.add(new AuditEvent(
-                            exec.executedAt(),
-                            AuditEventType.ACTION_EXECUTED,
-                            String.format("%s [%s] FAILED (Cost: %s) — %s",
-                                    action.actionType(),
-                                    TimelineFormatter.formatDayOffset(failure.failedAt(), exec.executedAt()),
-                                    TimelineFormatter.formatRupees(exec.costPaise()),
-                                    exec.outcomeNote())
-                    ));
+                    auditTrail.add(AuditTrailBuilder.buildActionExecutedEvent(failure, exec));
                 } else {
-                    auditTrail.add(new AuditEvent(
-                            exec.executedAt(),
-                            AuditEventType.ACTION_EXECUTED,
-                            String.format("%s [%s] SKIPPED (Cost: %s) — %s",
-                                    action.actionType(),
-                                    TimelineFormatter.formatDayOffset(failure.failedAt(), exec.executedAt()),
-                                    TimelineFormatter.formatRupees(exec.costPaise()),
-                                    exec.outcomeNote())
-                    ));
+                    auditTrail.add(AuditTrailBuilder.buildActionExecutedEvent(failure, exec));
                 }
             }
 
@@ -174,9 +115,8 @@ public class RecoveryOrchestrator {
                 finalStatus = RecoveryStatus.RECOVERED;
             } else {
                 finalStatus = RecoveryStatus.UNRESOLVED;
-                auditTrail.add(new AuditEvent(
+                auditTrail.add(AuditTrailBuilder.buildRecoveryStoppedEvent(
                         executions.isEmpty() ? failure.failedAt() : executions.get(executions.size() - 1).executedAt(),
-                        AuditEventType.RECOVERY_STOPPED,
                         "All scheduled recovery actions executed without resolution. Case marked UNRESOLVED."
                 ));
             }

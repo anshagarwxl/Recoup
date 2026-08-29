@@ -7,8 +7,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import org.springframework.stereotype.Component;
 
 /** Generates a reproducible, seeded batch of synthetic payment failures. */
+@Component
 public class SyntheticDataGenerator {
 
     private static final Instant BASE_TIME = Instant.parse("2026-08-25T00:00:00Z");
