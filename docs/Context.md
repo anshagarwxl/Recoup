@@ -124,8 +124,8 @@ Every diagnosis and message generated must record and display its origin:
    * Program rules for mapping failure classifications to recovery schedules, estimated costs, and stopping conditions, including a high-value manual escalation overlay (> ₹10,000).
 4. **[COMPLETED] Step 4: Mock Recovery Executor**
    * Simulates payment retries and communication actions, applying step success rates and cost accounting rules (actual cost charged on attempts, zero cost when skipped).
-5. **Step 5: HTML Dashboard & Audit Trail UI**
-   * Set up Thymeleaf controllers and templates to display the batch summary (Gross vs. Net recovered revenue) and timelines.
+5. **[COMPLETED] Step 5: HTML Dashboard & Audit Trail UI**
+   * Built Thymeleaf dashboard and Spring MVC controller to display batch KPI metrics (Gross vs. Net recovery), case filter lists, and interactive transaction audit trail inspection drawers.
 
 ---
 
@@ -134,7 +134,7 @@ Every diagnosis and message generated must record and display its origin:
 ### Session 1 (2026-08-25) — Bootstrapping & Phase 1 Core Backend
 * **Actions Taken**:
   * Rewrote `docs/Context.md` and created `AGENTS.md` to define guidelines (Karpathy rules, ECC file bounds, deterministic policies, context log requirements).
-  * Implemented and validated the core schema domain records under `com.recoup.domain` (originally `com.ansh.recoup.domain`).
+  * Implemented and validated the core schema domain records under `com.recoup.domain`.
   * **[Phase 1 Implementation]**:
     * Created `SyntheticDataGenerator.java` mapping 15 realistic failure profiles (UPI-majority context weights) using a seeded `Random` generator.
     * Created `GeminiClient.java` using plain Java `HttpClient` to call Gemini Flash (configured with a 5-second timeout, `responseMimeType: "application/json"`, and complete try-catch degradation logic).
@@ -157,5 +157,16 @@ Every diagnosis and message generated must record and display its origin:
   * Documented outcome probabilities and assumptions in `docs/DATA.md`.
   * Verified build compiles and all 20 tests pass with `./mvnw test`.
   * Committed refactoring and Policy Engine changes locally (commits `715929b`, `0fb6668` and `dbad53d`) and pushed them to GitHub.
+
+### Session 3 (2026-08-29) — Pipeline Orchestration & Interactive Web UI
+* **Actions Taken**:
+  * Implemented `RecoveryOrchestrator.java` to coordinate the full end-to-end recovery lifecycle (diagnosis -> policy -> execution with early-stopping and audit trail construction).
+  * Implemented `RecoveryMetrics.java` to aggregate financial KPIs (Gross revenue, actual intervention costs, Net yield).
+  * Implemented `TimelineFormatter.java` for simulated relative offset formatting.
+  * Implemented `DashboardController.java` to serve the web dashboard and REST case inspection API.
+  * Built `dashboard.html` with modern dark-mode fintech aesthetics, metric cards, status filters, search, and slide-over audit trail drawers.
+  * Created `RecoveryOrchestratorTest.java` and `DashboardControllerTest.java` bringing the test suite to 25 passing automated tests.
+  * Created `docs/PROJECT_GUIDE.md` as an in-depth understanding guide.
+  * Verified build compiles and all 25 tests pass (`./mvnw clean test`).
 * **Next Task**:
-  * Proceed to Phase 3: Create the Case Manager and Pipeline orchestrator to execute the batch end-to-end, evaluating actions and tracking states sequentially, producing audit trails.
+  * Run application locally (`./mvnw spring-boot:run`) and verify web dashboard functionality.
