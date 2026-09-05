@@ -27,12 +27,11 @@ public class GeminiClient {
     private static final Logger log = LoggerFactory.getLogger(GeminiClient.class);
     private static final String GEMINI_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=%s";
 
-    // Client-side rate limiter: Free Tier allows 10 RPM. We cap at 3 per batch load
-    // to avoid blocking the HTTP thread for too long (each call can take ~8s on the thinking model).
-    private static final int MAX_CALLS_PER_MINUTE = 3;
-    private static final long WINDOW_MS = 60_000L;
-    private final java.util.concurrent.atomic.AtomicInteger callsThisWindow = new java.util.concurrent.atomic.AtomicInteger(0);
-    private volatile long windowStartMs = System.currentTimeMillis();
+    // Client-side rate limiter: Free Tier allows 10 RPM. We cap at 3 per batch.
+    // Call resetForNewBatch() at the start of each processing run to get a fresh quota.
+    private static final int MAX_CALLS_PER_BATCH = 3;
+    private final java.util.concurrent.atomic.AtomicInteger callsThisBatch = new java.util.concurrent.atomic.AtomicInteger(0);
+    private volatile long lastBatchResetMs = 0L;
 
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
@@ -47,6 +46,13 @@ public class GeminiClient {
                 .build();
     }
 
+    /** Reset per-batch Gemini quota. Call this at the start of each processBatch() run. */
+    public void resetForNewBatch() {
+        callsThisBatch.set(0);
+        lastBatchResetMs = System.currentTimeMillis();
+        log.debug("Gemini rate-limiter: per-batch quota reset (cap={}).", MAX_CALLS_PER_BATCH);
+    }
+
     /**
      * Calls the Gemini API to classify the raw failure text.
      * Degrades gracefully to MOCK_FALLBACK on timeout, rate-limits, malformed response, or missing key.
@@ -57,15 +63,11 @@ public class GeminiClient {
             return fallbackDiagnosis("API key is missing");
         }
 
-        // Client-side rate limit check: reset window if a full minute has passed
-        long now = System.currentTimeMillis();
-        if (now - windowStartMs > WINDOW_MS) {
-            windowStartMs = now;
-            callsThisWindow.set(0);
-        }
-        if (callsThisWindow.incrementAndGet() > MAX_CALLS_PER_MINUTE) {
-            log.debug("Client-side rate limit reached ({}/min). Falling back to MOCK_FALLBACK.", MAX_CALLS_PER_MINUTE);
-            return fallbackDiagnosis("Client-side rate limit cap reached");
+        // Client-side per-batch rate limit: allow only MAX_CALLS_PER_BATCH Gemini calls per batch run.
+        // resetForNewBatch() must be called by the orchestrator at the start of each batch.
+        if (callsThisBatch.incrementAndGet() > MAX_CALLS_PER_BATCH) {
+            log.debug("Per-batch Gemini cap ({}) reached. Falling back to MOCK_FALLBACK.", MAX_CALLS_PER_BATCH);
+            return fallbackDiagnosis("Per-batch rate limit cap reached");
         }
 
         try {

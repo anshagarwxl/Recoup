@@ -55,6 +55,11 @@ public class DiagnosisEngine {
         this.geminiClient = Objects.requireNonNull(geminiClient, "geminiClient must not be null");
     }
 
+    /** Resets the Gemini per-batch quota. Call at the start of each processBatch() run. */
+    public void resetGeminiQuota() {
+        geminiClient.resetForNewBatch();
+    }
+
     /**
      * Categorizes a payment failure.
      * Looks up clean code rules first. If code is missing/unknown, delegates to Gemini Flash.

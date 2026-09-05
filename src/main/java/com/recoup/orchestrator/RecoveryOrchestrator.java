@@ -51,6 +51,8 @@ public class RecoveryOrchestrator {
      */
     public List<RecoveryCase> processBatch(List<PaymentFailure> failures) {
         Objects.requireNonNull(failures, "failures must not be null");
+        // Reset Gemini per-batch quota so each run (startup + Re-run Simulation) gets its own fresh allowance.
+        diagnosisEngine.resetGeminiQuota();
         List<RecoveryCase> cases = new ArrayList<>();
         for (PaymentFailure failure : failures) {
             cases.add(processCase(failure));
