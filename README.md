@@ -46,10 +46,11 @@ git clone https://github.com/anshagarwxl/Recoup.git
 cd Recoup
 
 # 2. Set your Gemini API Key (Required for AI classification)
-export GEMINI_API_KEY="your_api_key_here"
+# Create a local properties file (this file is gitignored)
+echo "GEMINI_API_KEY=your_api_key_here" > src/main/resources/application.properties
 
 # 3. Run the Spring Boot application
-./mvnw spring-boot:run
+./mvnw clean spring-boot:run
 ```
 Then open [http://localhost:8080](http://localhost:8080) to view the dashboard.
 
@@ -58,6 +59,11 @@ Then open [http://localhost:8080](http://localhost:8080) to view the dashboard.
 > **[Insert Link to ~5-minute Demo Video Here]**
 
 *(Note: Watch the video to see the live Gemini Flash AI classification and the dynamic timeline drawer in action).*
+
+## ⚠️ Note on Gemini API Free Tier Limits
+The application uses Google's Free Tier Gemini API, which has strict rate limits (e.g., 15 requests per minute, and a tight daily quota). 
+- To prevent rate-limit flooding on startup, the application features a **client-side rate limiter** that caps Gemini calls to 3 per batch.
+- If the API key is missing, invalid, or the quota is exhausted, the application will **not crash**. It will gracefully degrade, classifying remaining ambiguous failures as `UNKNOWN` with a source tag of `MOCK_FALLBACK`.
 
 ## Architecture & Data Flow
 

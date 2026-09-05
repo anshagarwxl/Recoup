@@ -179,5 +179,12 @@ Every diagnosis and message generated must record and display its origin:
   * Componentized `SyntheticDataGenerator.java` via Spring `@Component`.
   * Extracted audit string formatting into `AuditTrailBuilder.java` to simplify `RecoveryOrchestrator.java`.
   * Verified all 25 tests still pass cleanly.
+
+### Session 5 (2026-09-05) — API Rate Limiting & Developer Experience Polish
+* **Actions Taken**:
+  * Identified and fixed a burst rate-limit flood where 35 concurrent requests hit the Gemini Free Tier instantly on boot. Added a client-side `AtomicInteger` rate-limiter to cap Gemini calls at 3 per batch.
+  * Encountered the hard 20-request daily limit on `gemini-3.6-flash`. Changed the integration model to `gemini-3.5-flash-lite` to utilize a separate free-tier quota while retaining classification accuracy.
+  * Fixed an environment variable scoping issue where terminal tab mismatch caused `export GEMINI_API_KEY` to be missed by the Maven daemon. Migrated the setup to use a gitignored `src/main/resources/application.properties` file for rock-solid reliability.
+  * Documented all API limits and fixes in `README.md` and `FAILURES.md`.
 * **Next Task**:
-  * User to configure `GEMINI_API_KEY` and record the final demonstration video.
+  * User to record final demo video using the robust `application.properties` configuration.
