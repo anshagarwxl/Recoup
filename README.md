@@ -12,6 +12,9 @@
   <a href="https://github.com/anshagarwxl/Recoup/actions/workflows/build.yml">
     <img src="https://github.com/anshagarwxl/Recoup/actions/workflows/build.yml/badge.svg" alt="Build Status">
   </a>
+  <a href="https://recoup-production-89d9.up.railway.app">
+    <img src="https://img.shields.io/badge/Live%20Demo-Railway-blueviolet.svg" alt="Live Demo">
+  </a>
   <a href="https://img.shields.io/badge/Java-21-orange.svg">
     <img src="https://img.shields.io/badge/Java-21-orange.svg" alt="Java 21">
   </a>
@@ -53,6 +56,12 @@ echo "GEMINI_API_KEY=your_api_key_here" > src/main/resources/application.propert
 ./mvnw clean spring-boot:run
 ```
 Then open [http://localhost:8080](http://localhost:8080) to view the dashboard.
+
+## 🚀 Live Demo
+
+**[https://recoup-production-89d9.up.railway.app](https://recoup-production-89d9.up.railway.app)**
+
+Deployed on Railway. The live instance runs with full Gemini Flash AI classification enabled.
 
 ## Demo Video
 
