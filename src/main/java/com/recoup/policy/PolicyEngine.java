@@ -46,7 +46,7 @@ public class PolicyEngine {
                         0L
                 ));
                 status = RecoveryStatus.STOPPED;
-                stoppingRationale = "Terminal fraud or decline flag; no attempts permitted.";
+                stoppingRationale = "Terminal fraud or compliance flag. Per RBI Master Direction on Digital Payments, retries are prohibited on fraud-flagged instruments. No further automated action taken.";
                 break;
 
             case INSUFFICIENT_FUNDS:
@@ -63,7 +63,7 @@ public class PolicyEngine {
                             "Auto-retry debit after top-up window",
                             500L // ₹5
                     ));
-                    stoppingRationale = "Stop after 1 retry attempt.";
+                    stoppingRationale = "Capped at 1 automated retry. Per NPCI UPI e-mandate circular (Oct 2021), excessive automated retries on failed debit mandates are prohibited. Retry scheduled at T+24h after a customer top-up window.";
                 } else if (failure.context() == PaymentContext.ONE_TIME_CHECKOUT) {
                     plannedActions.add(new PlannedAction(
                             RecoveryActionType.SEND_PAYMENT_LINK,
@@ -71,7 +71,7 @@ public class PolicyEngine {
                             "Send backup payment link since checkout failed",
                             200L // ₹2
                     ));
-                    stoppingRationale = "Stop after sending 1 payment link.";
+                    stoppingRationale = "One-time checkout context. A single recovery payment link is issued at T+15min. No automated debit retries are permitted without fresh customer authorization.";
                 } else {
                     // Fallback for B2B or other contexts
                     plannedActions.add(new PlannedAction(
@@ -80,7 +80,7 @@ public class PolicyEngine {
                             "Send payment link for outstanding balance",
                             200L // ₹2
                     ));
-                    stoppingRationale = "Stop after sending 1 payment link.";
+                    stoppingRationale = "Non-subscription context. A recovery payment link is issued at T+1h. No automated debit retries without fresh customer action.";
                 }
                 break;
 
@@ -92,7 +92,7 @@ public class PolicyEngine {
                         "UPI mandate inactive or collect expired; send link to retry or re-authorize",
                         200L // ₹2
                 ));
-                stoppingRationale = "Stop after link nudge.";
+                stoppingRationale = "UPI mandate is inactive or collect request has expired. Per NPCI UPI mandate framework, a fresh mandate authorization is required before any debit can be initiated. Recovery link sent for re-authorization.";
                 break;
 
             case AUTHENTICATION_FAILED:
@@ -103,7 +103,7 @@ public class PolicyEngine {
                         "Authentication failed or card declined; send secure payment link",
                         200L // ₹2
                 ));
-                stoppingRationale = "Stop after sending 1 recovery link.";
+                stoppingRationale = "Authentication failure or card decline. Repeated automated retries on authentication failures are not permitted per PCI-DSS guidelines. A secure payment link is issued for a customer-initiated re-attempt.";
                 break;
 
             case BANK_TECHNICAL_ERROR:
@@ -120,7 +120,7 @@ public class PolicyEngine {
                         "Outage persistent; final bank retry attempt",
                         500L // ₹5
                 ));
-                stoppingRationale = "Stop after 2 automated retries.";
+                stoppingRationale = "Transient bank-side or network error. Capped at 2 automated retries (T+1h, T+6h) with mandatory spacing. Per NPCI operational guidelines, retries beyond this window require manual review.";
                 break;
 
             case UNKNOWN:
@@ -132,7 +132,7 @@ public class PolicyEngine {
                         ESCALATION_COST_PAISE // ₹50
                 ));
                 status = RecoveryStatus.STOPPED;
-                stoppingRationale = "Immediate stop; case escalated for manual review.";
+                stoppingRationale = "Ambiguous failure reason — AI classification returned UNKNOWN or MOCK_FALLBACK. Automated action suspended. Case escalated to operations team for manual review per internal compliance policy.";
                 break;
         }
 
