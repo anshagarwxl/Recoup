@@ -117,6 +117,14 @@ flowchart TD
 - **Honest Recovery Metrics:** Reports *net* revenue recovered after subtracting retry, messaging, and operational escalation costs.
 - **Post-Deployment Monitoring Dashboard:** The web dashboard acts as a live drift sentinel. It explicitly visualizes the *Diagnosis Source Breakdown* (Gateway vs AI), ensuring ongoing observability of AI dependency and behavior in production.
 
+## Honest Limitations
+
+- **Executor is simulated.** `RecoveryExecutor` does not call live Razorpay APIs. SMS links, retries, and escalations are modelled with representative costs but no live network calls occur. Plugging in real Razorpay API calls is an explicit next step.
+- **No webhook ingestion.** The system processes a synthetic batch on startup rather than consuming real-time Razorpay webhook events. The synthetic generator is seeded and reproducible, but live event streaming is out of scope.
+- **Gemini on free tier.** AI classification uses the free-tier Gemini Flash Lite quota (15 req/min). On an exhausted key, all ambiguous failures route to `MOCK_FALLBACK`. Both paths are fully tested and the dashboard shows which source each diagnosis came from.
+- **In-memory state.** The recovery case store is not persisted to a database. A server restart clears the batch. Production would require a PostgreSQL or Redis-backed store.
+- **Single batch per run.** The orchestrator processes one parameterizable batch at a time. There is no queue-based continuous ingestion pipeline.
+
 ## Documentation
 
 - [Problem framing](docs/PROBLEM.md)
