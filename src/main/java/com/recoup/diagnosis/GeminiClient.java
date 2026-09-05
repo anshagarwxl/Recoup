@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 public class GeminiClient {
 
     private static final Logger log = LoggerFactory.getLogger(GeminiClient.class);
-    private static final String GEMINI_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=%s";
+    private static final String GEMINI_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=%s";
 
     // Client-side rate limiter: Free Tier allows 10 RPM. We cap at 3 per batch.
     // Call resetForNewBatch() at the start of each processing run to get a fresh quota.

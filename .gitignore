@@ -21,3 +21,4 @@ application-local.properties
 # Personal walkthroughs and explanations
 docs/EXPLANATIONS.md
 docs/PROJECT_GUIDE.md
+src/main/resources/application.properties
