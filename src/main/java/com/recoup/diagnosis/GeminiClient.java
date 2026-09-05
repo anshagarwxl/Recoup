@@ -36,7 +36,7 @@ public class GeminiClient {
     public GeminiClient(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(5))
+                .connectTimeout(Duration.ofSeconds(10))
                 .build();
     }
 
@@ -80,7 +80,7 @@ public class GeminiClient {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(apiUrl))
                     .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(5))
+                    .timeout(Duration.ofSeconds(20))
                     .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
                     .build();
 
