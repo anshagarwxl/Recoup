@@ -74,21 +74,21 @@ The application uses Google's Free Tier Gemini API, which has strict rate limits
 - To prevent rate-limit flooding on startup, the application features a **client-side rate limiter** that caps Gemini calls to 3 per batch.
 - If the API key is missing, invalid, or the quota is exhausted, the application will **not crash**. It will gracefully degrade, classifying remaining ambiguous failures as `UNKNOWN` with a source tag of `MOCK_FALLBACK`.
 
-## Architecture & Data Flow
+## Architecture & Data Flow: The Deterministic Firewall
 
-Recoup strictly isolates business logic from LLM generation to guarantee financial compliance.
+A common trap in AI finance tools is letting an LLM make routing or financial decisions. LLMs are probabilistic; they will eventually hallucinate a refund, waive a fee, or retry a dead card if given control flow over money. **Recoup explicitly quarantines the AI.**
 
 1. **Synthetic Generation:** A deterministic engine seeds a reproducible batch of 125 failed payments (UPI, Card, Netbanking) representing real-world Indian fintech failures.
 2. **Diagnosis (`GATEWAY_CODE` vs `LLM_GEMINI`):** 
-   - **Deterministic:** Gateway error codes (e.g., `INSUFFICIENT_FUNDS`, `FRAUD_FLAGGED`) are mapped deterministically to failure types.
-   - **Gemini Flash (LLM):** Ambiguous, free-text gateway reason strings are sent to Gemini for intelligent classification. If Gemini is unavailable, it safely defaults to `UNKNOWN` (`MOCK_FALLBACK`).
-3. **Policy Engine (Zero LLM):** Fully deterministic. It applies compliance rules (e.g., hard halts on fraud) and escalating cost policies (e.g., triggering account manager review for failures > ₹10,000) using strict Java rules.
+   - **Deterministic:** Gateway error codes (e.g., `INSUFFICIENT_FUNDS`, `FRAUD_FLAGGED`) are mapped deterministically.
+   - **AI Classification:** Ambiguous, free-text gateway reason strings are sent to Gemini Flash for intelligent classification. If Gemini hallucinates or the API fails, it safely defaults to `UNKNOWN` (`MOCK_FALLBACK`). **The AI is strictly read-only.**
+3. **Policy Engine (Zero LLM):** Fully deterministic. It applies compliance rules (e.g., hard halts on fraud) and escalating cost policies (e.g., triggering account manager review for failures > ₹10,000) using strict Java rules. The AI never touches the ledger.
 4. **Execution & Auditing:** The Orchestrator logs every decision, simulated cost, and final state to a transparent audit trail, viewable in the Thymeleaf web dashboard.
 
 ## Key Features
 
+- **Defense in Depth:** The architecture is built on the assumption that AI can and will fail. Deterministic guardrails ensure that financial stopping conditions (like `HARD_DECLINE`) are never overridden by an LLM.
 - **UPI-Aware by Design:** Payment failure handling reflects Indian payment realities rather than treating every failure as a generic card decline.
-- **Deterministic for Financials:** Policies, stopping rules, costs, and escalations are explicit, testable Java code. AI is strictly prohibited from making financial decisions.
 - **Auditable Decisions:** Every diagnosis, decision, action, and outcome provides a human-readable explanation in the dashboard timeline.
 - **Honest Recovery Metrics:** Reports *net* revenue recovered after subtracting retry, messaging, and operational escalation costs.
 - **Offline-Safe Dashboard:** The dashboard features Chart.js data visualizations with local fallbacks, tactile button physics, and native `@media print` CSS for exporting clean PDF snapshots.
