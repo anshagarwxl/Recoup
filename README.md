@@ -85,6 +85,30 @@ A common trap in AI finance tools is letting an LLM make routing or financial de
 3. **Policy Engine (Zero LLM):** Fully deterministic. It applies compliance rules (e.g., hard halts on fraud) and escalating cost policies (e.g., triggering account manager review for failures > ₹10,000) using strict Java rules. The AI never touches the ledger.
 4. **Execution & Auditing:** The Orchestrator logs every decision, simulated cost, and final state to a transparent audit trail, viewable in the Thymeleaf web dashboard.
 
+```mermaid
+flowchart TD
+    Gen["SyntheticDataGenerator\n125 failed payments — UPI · Card · Netbanking"]
+    Diag["DiagnosisEngine"]
+    GW["Gateway Code Map\ndeterministic lookup"]
+    AI["GeminiClient\nFlash Lite — read-only classification"]
+    FB["MOCK_FALLBACK\ngraceful degradation"]
+    Policy["PolicyEngine\n100% deterministic Java — zero LLM"]
+    Exec["RecoveryExecutor\nSMS link · Retry · Escalate · Hard stop"]
+    Audit["AuditTrailBuilder\nimmutable event log"]
+    Dash["Thymeleaf Dashboard\nKPIs · Charts · Timeline drawer"]
+
+    Gen --> Diag
+    Diag --> GW
+    Diag --> AI
+    AI -->|"quota exhausted / API error"| FB
+    GW --> Policy
+    AI --> Policy
+    FB --> Policy
+    Policy --> Exec
+    Exec --> Audit
+    Audit --> Dash
+```
+
 ## Key Features
 
 - **Defense in Depth:** The architecture is built on the assumption that AI can and will fail. Deterministic guardrails ensure that financial stopping conditions (like `HARD_DECLINE`) are never overridden by an LLM.
