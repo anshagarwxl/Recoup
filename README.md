@@ -89,9 +89,9 @@ A common trap in AI finance tools is letting an LLM make routing or financial de
 
 - **Defense in Depth:** The architecture is built on the assumption that AI can and will fail. Deterministic guardrails ensure that financial stopping conditions (like `HARD_DECLINE`) are never overridden by an LLM.
 - **UPI-Aware by Design:** Payment failure handling reflects Indian payment realities rather than treating every failure as a generic card decline.
-- **Auditable Decisions:** Every diagnosis, decision, action, and outcome provides a human-readable explanation in the dashboard timeline.
+- **Immutable Audit Trail:** Every diagnosis, decision, action, and outcome is logged to an append-only timeline, providing a human-readable explanation and compliance proof for every transaction.
 - **Honest Recovery Metrics:** Reports *net* revenue recovered after subtracting retry, messaging, and operational escalation costs.
-- **Offline-Safe Dashboard:** The dashboard features Chart.js data visualizations with local fallbacks, tactile button physics, and native `@media print` CSS for exporting clean PDF snapshots.
+- **Post-Deployment Monitoring Dashboard:** The web dashboard acts as a live drift sentinel. It explicitly visualizes the *Diagnosis Source Breakdown* (Gateway vs AI), ensuring ongoing observability of AI dependency and behavior in production.
 
 ## Documentation
 
