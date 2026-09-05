@@ -27,6 +27,12 @@ public class GeminiClient {
     private static final Logger log = LoggerFactory.getLogger(GeminiClient.class);
     private static final String GEMINI_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=%s";
 
+    // Client-side rate limiter: Free Tier allows 10 RPM. We cap at 8 to stay safely under.
+    private static final int MAX_CALLS_PER_MINUTE = 8;
+    private static final long WINDOW_MS = 60_000L;
+    private final java.util.concurrent.atomic.AtomicInteger callsThisWindow = new java.util.concurrent.atomic.AtomicInteger(0);
+    private volatile long windowStartMs = System.currentTimeMillis();
+
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
 
@@ -48,6 +54,17 @@ public class GeminiClient {
         if (apiKey == null || apiKey.isBlank()) {
             log.warn("Gemini API key is missing. Falling back to MOCK_FALLBACK.");
             return fallbackDiagnosis("API key is missing");
+        }
+
+        // Client-side rate limit check: reset window if a full minute has passed
+        long now = System.currentTimeMillis();
+        if (now - windowStartMs > WINDOW_MS) {
+            windowStartMs = now;
+            callsThisWindow.set(0);
+        }
+        if (callsThisWindow.incrementAndGet() > MAX_CALLS_PER_MINUTE) {
+            log.debug("Client-side rate limit reached ({}/min). Falling back to MOCK_FALLBACK.", MAX_CALLS_PER_MINUTE);
+            return fallbackDiagnosis("Client-side rate limit cap reached");
         }
 
         try {
