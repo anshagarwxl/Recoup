@@ -27,8 +27,9 @@ public class GeminiClient {
     private static final Logger log = LoggerFactory.getLogger(GeminiClient.class);
     private static final String GEMINI_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=%s";
 
-    // Client-side rate limiter: Free Tier allows 10 RPM. We cap at 8 to stay safely under.
-    private static final int MAX_CALLS_PER_MINUTE = 8;
+    // Client-side rate limiter: Free Tier allows 10 RPM. We cap at 3 per batch load
+    // to avoid blocking the HTTP thread for too long (each call can take ~8s on the thinking model).
+    private static final int MAX_CALLS_PER_MINUTE = 3;
     private static final long WINDOW_MS = 60_000L;
     private final java.util.concurrent.atomic.AtomicInteger callsThisWindow = new java.util.concurrent.atomic.AtomicInteger(0);
     private volatile long windowStartMs = System.currentTimeMillis();
@@ -97,7 +98,7 @@ public class GeminiClient {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(apiUrl))
                     .header("Content-Type", "application/json")
-                    .timeout(Duration.ofSeconds(20))
+                    .timeout(Duration.ofSeconds(8))
                     .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
                     .build();
 
