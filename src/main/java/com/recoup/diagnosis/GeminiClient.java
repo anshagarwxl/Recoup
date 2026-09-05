@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 public class GeminiClient {
 
     private static final Logger log = LoggerFactory.getLogger(GeminiClient.class);
-    private static final String GEMINI_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=%s";
+    private static final String GEMINI_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=%s";
 
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
