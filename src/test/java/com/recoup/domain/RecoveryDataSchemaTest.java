@@ -24,7 +24,8 @@ class RecoveryDataSchemaTest {
                 new RecoveryPlan(RecoveryStatus.IN_PROGRESS, List.of(retry), "Stop after the single bounded retry"),
                 List.of(new ActionExecution(retry, ActionResult.FAILED, FAILURE_TIME.plusSeconds(3_600), 0,
                         "Bank remained unavailable")),
-                List.of(new AuditEvent(FAILURE_TIME, AuditEventType.FAILURE_RECORDED, "Payment failure imported"))));
+                List.of(new AuditEvent(FAILURE_TIME, AuditEventType.FAILURE_RECORDED, "Payment failure imported")),
+                RecoveryGroup.TREATMENT));
     }
 
     @Test

@@ -612,6 +612,28 @@
         </div>
     </section>
 
+    <!-- Incremental Recovery Lift Banner (Treatment vs Control Holdout) -->
+    <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(16, 185, 129, 0.06) 100%); border: 1px solid rgba(139, 92, 246, 0.35); border-radius: 12px; padding: 18px 24px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; gap: 32px;">
+        <div>
+            <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-purple); margin-bottom: 4px;">Incremental Recovery Lift  ·  20% Control Holdout</div>
+            <div style="font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-family: var(--font-mono);" th:text="${metrics.formattedIncrementalNetRecovered()}">₹0.00</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Net value generated above the no-intervention baseline — the true economic justification for active recovery</div>
+        </div>
+        <div style="display: flex; gap: 40px; flex-shrink: 0;">
+            <div style="text-align: center;">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 500; margin-bottom: 6px;">Treatment Net Recovered</div>
+                <div style="font-size: 20px; font-weight: 700; font-family: var(--font-mono); color: var(--accent-green);" th:text="${metrics.formattedNetRecovered()}">₹0.00</div>
+                <div style="font-size: 11px; color: var(--text-muted);">80% of batch (active intervention)</div>
+            </div>
+            <div style="width: 1px; background: var(--border-color);"></div>
+            <div style="text-align: center;">
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 500; margin-bottom: 6px;">Control Baseline (No Action)</div>
+                <div style="font-size: 20px; font-weight: 700; font-family: var(--font-mono); color: var(--text-secondary);" th:text="${metrics.formattedControlNaturalRecovered()}">₹0.00</div>
+                <div style="font-size: 11px; color: var(--text-muted);" th:text="${metrics.controlGroupCount()} + ' cases held out (20%)'">25 cases held out (20%)</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Charts Section -->
     <section class="charts-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 28px;">
         <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px;">
@@ -694,7 +716,7 @@
                         <span th:if="${rCase.plan().status().name() == 'STOPPED'}" class="badge badge-gray">Stopped</span>
                     </td>
                     <td class="font-mono">
-                        <span th:with="totalCost=${#aggregates.sum(rCase.executions().![costPaise])}">
+                        <span th:with="totalCost=${#aggregates.sum(rCase.executions().![costPaise]) ?: 0}">
                             <span th:text="'₹' + ${#numbers.formatDecimal(totalCost / 100.0, 1, 'COMMA', 2, 'POINT')}">₹5.00</span>
                         </span>
                     </td>

@@ -18,7 +18,10 @@ public record RecoveryMetrics(
         long stoppedCount,
         Map<FailureType, Long> failuresByType,
         Map<PaymentMethod, Long> failuresByMethod,
-        Map<DiagnosisSource, Long> diagnosesBySource) {
+        Map<DiagnosisSource, Long> diagnosesBySource,
+        long controlGroupCount,
+        long controlNaturalRecoveredPaise,
+        long incrementalNetRecoveredPaise) {
 
     public String formattedTotalFailedAmount() {
         return formatRupees(totalFailedAmountPaise);
@@ -44,6 +47,19 @@ public record RecoveryMetrics(
         if (totalFailedAmountPaise == 0) return "0.0%";
         double rate = (grossRecoveredPaise * 100.0) / totalFailedAmountPaise;
         return String.format("%.1f%%", rate);
+    }
+
+    /** Formats the natural recovery amount observed in the control group (no-intervention baseline). */
+    public String formattedControlNaturalRecovered() {
+        return formatRupees(controlNaturalRecoveredPaise);
+    }
+
+    /**
+     * Formats the incremental net recovery lift: how much MORE revenue was recovered
+     * by the active policy engine compared to the no-intervention control baseline.
+     */
+    public String formattedIncrementalNetRecovered() {
+        return formatRupees(incrementalNetRecoveredPaise);
     }
 
     private static String formatRupees(long paise) {
