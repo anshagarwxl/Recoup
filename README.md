@@ -26,13 +26,6 @@
   </a>
 </p>
 
-<p align="center">
-  <a href="#-quick-start">Quick Start</a> •
-  <a href="#-architecture--data-flow">Architecture</a> •
-  <a href="#-key-features">Key Features</a> •
-  <a href="#-demo-video">Demo Video</a>
-</p>
-
 ---
 
 ![Dashboard Preview](docs/assets/dashboard.png) 
