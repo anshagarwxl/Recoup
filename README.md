@@ -56,11 +56,6 @@ Then open [http://localhost:8080](http://localhost:8080) to view the dashboard.
 
 Deployed on Railway. The live instance runs with full Gemini Flash AI classification enabled.
 
-## Demo Video
-
-> **[Insert Link to ~5-minute Demo Video Here]**
-
-*(Note: Watch the video to see the live Gemini Flash AI classification and the dynamic timeline drawer in action).*
 
 ## ⚠️ Note on Gemini API Free Tier Limits
 The application uses Google's Free Tier Gemini API, which has strict rate limits (e.g., 15 requests per minute, and a tight daily quota). 
